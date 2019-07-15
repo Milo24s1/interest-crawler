@@ -78,11 +78,12 @@ InterestController.fbInterestAPICall = function (req,res) {
 
     const access_token = req.cookies['access_token'];
     const searchTerm = req.body.searchTerm;
+    console.log('fbInterestAPICall: searchTerm'+searchTerm);
     console.log('fbInterestAPICall: '+access_token);
     const getOptions = {
       jar: true,
       followAllRedirects: true,
-      url: `https://graph.facebook.com/search?type=adinterest&q=[Golf]&limit=10&locale=en_US&access_token=${access_token}`
+      url: `https://graph.facebook.com/search?type=adinterest&q=[${searchTerm}]&limit=10&locale=en_US&access_token=${access_token}`
     };
 
     try {

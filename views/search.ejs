@@ -30,7 +30,7 @@
 <div id="searching" style="margin-top: 10px">
     <form>
         <div class="form-group">
-            <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Interest...">
+            <input type="text" class="form-control" id="searchTerm" aria-describedby="emailHelp" placeholder="Enter Interest...">
             <button type="submit" class="btn btn-primary" id="search">Search</button>
         </div>
 
@@ -55,38 +55,34 @@
         </tr>
         </thead>`;
 
-        const tboday = `<tbody>
-        <tr>
-            <th scope="row">Zurich Classic of New Orleans</th>
-            <td>100</td>
-            <td>Column content</td>
-        </tr>
-        <tr class="table-primary">
-            <th scope="row">Your Golf Travel</th>
-            <td>33 400</td>
-            <td>Column content</td>
-        </tr>
-        <tr class="table-secondary">
-            <th scope="row">Yarmouth, Nova Scotia</th>
-            <td>132 652</td>
-            <td>Column content</td>
-        </tr>
-        </tbody>`;
 
-        $("#search-result").append(thead+tboday);
+
+
         $("#search").click(function (e) {
             e.preventDefault();
-            console.log('submit clicked');
             $.ajax({
 
                 url:'/searchInterest',
                 method: 'POST',
                 dataType: 'json',
                 data: {
+                    searchTerm:$("#searchTerm").val()
                 },
-                success: function (data) {
-                    console.log('sucess is called');
+                success: function (result) {
+                    let trs = `<tbody>`;
+                    for(let dataRow of result.data){
 
+                        trs += `<tr class="table-secondary">
+            <th scope="row">${dataRow.name}</th>
+            <td>${dataRow.audience_size}</td>
+            <td>
+                <a href="https://www.facebook.com/search/pages/?q=${dataRow.name.split(" ").join('+')}"><i class="fab fa-facebook-square">&nbsp;&nbsp;&nbsp;</i></a>
+                <a href="https://www.google.com/search?q=${dataRow.name.split(" ").join('+')}"><i class="fab fa-google">&nbsp;</i></a>
+            </td>
+        </tr>`;
+                    }
+                    trs += `</tbody>`;
+                    $("#search-result").append(thead+trs);
                 },
                 error : function (xhr, ajaxOptions, thrownError) {
                     if(xhr.status!=200) {
