@@ -82,6 +82,7 @@
         </tr>`;
                     }
                     trs += `</tbody>`;
+                    $("#search-result").html('');
                     $("#search-result").append(thead+trs);
                 },
                 error : function (xhr, ajaxOptions, thrownError) {
