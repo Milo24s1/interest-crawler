@@ -4,8 +4,10 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const flash = require('connect-flash');
 const session = require('express-session');
+var cookieParser = require('cookie-parser');
 
 const app = express();
+app.use(cookieParser());
 
 // Passport Config
 require('./config/passport')(passport);
