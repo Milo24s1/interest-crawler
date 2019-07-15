@@ -44,7 +44,8 @@ InterestController.fbRedirectHandle = function (req,res) {
 InterestController.demoTest = function(req,res){
 
     res.render('privacy', {
-
+        app_id:mainConfig.app_id,
+        redirect_uri:mainConfig.redirect_uri
     })
 };
 
