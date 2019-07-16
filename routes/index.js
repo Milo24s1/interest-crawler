@@ -16,6 +16,12 @@ router.get('/dashboard', ensureAuthenticated, (req, res) =>{
   // })
   }
 );
+
+router.get('/privacy',  (req, res) =>{
+        res.render('privacy');
+    }
+);
+
 // Fb Login
 router.get('/fblogin',  (req, res) =>{
         interestController.demoTest(req,res);
