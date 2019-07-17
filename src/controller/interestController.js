@@ -83,7 +83,7 @@ InterestController.fbInterestAPICall = function (req,res) {
     const getOptions = {
       jar: true,
       followAllRedirects: true,
-      url: `https://graph.facebook.com/search?type=adinterest&q=[${searchTerm}]&limit=10&locale=en_US&access_token=${access_token}`
+      url: `https://graph.facebook.com/search?type=adinterest&q=[${searchTerm}]&locale=en_US&access_token=${access_token}`
     };
 
     try {
