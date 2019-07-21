@@ -8,10 +8,10 @@
     <div class="collapse navbar-collapse" id="navbarColor01">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="/searchInterest">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Features</a>
+                <a class="nav-link" href="/searchBehaviours">Features</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Pricing</a>
@@ -32,6 +32,7 @@
         <div class="form-group">
             <input type="text" class="form-control" id="searchTerm" aria-describedby="emailHelp" placeholder="Enter Interest...">
             <button type="submit" class="btn btn-primary" id="search">Search</button>
+            <button id="export-interest" class="btn btn-success btn-export-interest" >Export to CSV</button>
         </div>
 
     </form>
@@ -46,9 +47,27 @@
 
 <script>
     $(document).ready(function () {
-        console.log('page loaded');
+
+        var interestMap = {};
+        $("#export-interest").click(function (e) {
+            e.preventDefault();
+            var selectedCheckbox = $('input[type="checkbox"]:checked');
+            if(selectedCheckbox.length>0){
+                let exportingList = [];
+                for(let checkbox of selectedCheckbox){
+                    exportingList.push(interestMap[checkbox.value]);
+                }
+                download(exportingList);
+            }
+            else {
+                alert('Please select at leaset one interest');
+            }
+
+        });
+
         const thead = `<thead>
         <tr>
+            <th class="custom-checkbox"><input class="" type="checkbox" value="" ></th>
             <th scope="col">INTERESTS</th>
             <th scope="col">AUDIENCE SIZE</th>
             <th scope="col">SEARCH</th>
@@ -72,7 +91,13 @@
                     let trs = `<tbody>`;
                     for(let dataRow of result.data){
 
+                        interestMap[dataRow.id] = {
+                            interests:dataRow.name,
+                            audience:dataRow.audience_size
+                        };
+
                         trs += `<tr class="table-secondary">
+            <th scope="row"><input class="" type="checkbox" value="" ></th>
             <th scope="row">${dataRow.name}</th>
             <td>${dataRow.audience_size}</td>
             <td>
@@ -93,5 +118,97 @@
                 }
             });
         });
+
+
+        /**************************************/
+        /********** CSV EXPORT ****************/
+
+
+
+
+        function convertToCSV(objArray) {
+            var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+            var str = '';
+
+            for (var i = 0; i < array.length; i++) {
+                var line = '';
+                for (var index in array[i]) {
+                    if (line != '') line += ','
+
+                    line += array[i][index];
+                }
+
+                str += line + '\r\n';
+            }
+
+            return str;
+        }
+
+        function exportCSVFile(headers, items, fileTitle) {
+            if (headers) {
+                items.unshift(headers);
+            }
+
+            // Convert Object to JSON
+            var jsonObject = JSON.stringify(items);
+
+            var csv = convertToCSV(jsonObject);
+
+            var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
+
+            var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            if (navigator.msSaveBlob) { // IE 10+
+                navigator.msSaveBlob(blob, exportedFilenmae);
+            } else {
+                var link = document.createElement("a");
+                if (link.download !== undefined) { // feature detection
+                    // Browsers that support HTML5 download attribute
+                    var url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", exportedFilenmae);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            }
+        }
+
+        function download(itemsNotFormatted){
+            var headers = {
+                interests: 'INTERESTS'.replace(/,/g, ''), // remove commas to avoid errors
+                audience: "AUDIENCE SIZE",
+            };
+
+
+            var itemsFormatted = [];
+
+            // format the data
+            itemsNotFormatted.forEach((item) => {
+                itemsFormatted.push({
+                    interests: item.interests.replace(/,/g, ''), // remove commas to avoid errors,
+                    audience: item.audience
+
+                });
+            });
+
+            var fileTitle = 'orders'; // or 'my-unique-title'
+
+            exportCSVFile(headers, itemsFormatted, fileTitle); // call the exportCSVFile() function to process the JSON and trigger the download
+        }
+
+
+
+
+
+        /********** END OF CSV EXPORT **********/
+        /**************************************/
     });
 </script>
+
+<style>
+    .btn-export-interest{
+        margin-left: 5px;
+        /*display: none;*/
+    }
+</style>
