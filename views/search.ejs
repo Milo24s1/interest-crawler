@@ -95,6 +95,8 @@
         $("#search").click(function (e) {
             e.preventDefault();
             $("#result-summary-header").hide();
+            $("#search-result").hide();
+
             searchTerm = $("#searchTerm").val();
             $.ajax({
 
@@ -124,12 +126,18 @@
         </tr>`;
                     }
                     trs += `</tbody>`;
-                    $("#search-result").html('');
 
+                    const numOfResult = result.data.length;
                     const headerContent = `Explore ${result.data.length} interests related to "${searchTerm}"`;
-                    $("#result-summary-header").html(headerContent);
-                    $("#result-summary-header").show();
-                    $("#search-result").append(thead+trs);
+                    const noresultContent = `We couldn’t find interest suggestions for your keyword. Please try again.`;
+                    if(numOfResult>0){
+                        $("#result-summary-header").html('').html(headerContent).show;
+                        $("#search-result").html('').append(thead+trs).show();
+                    }
+                    else {
+                        $("#result-summary-header").html('').html(noresultContent).show();
+                    }
+
 
 
                 },
