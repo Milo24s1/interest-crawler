@@ -39,6 +39,7 @@
 </div>
 
 <div id="searchResult">
+    <h4 id="result-summary-header" style="display: none"></h4>
     <table id="search-result" class="table table-hover">
 
 
@@ -49,9 +50,23 @@
     $(document).ready(function () {
 
         var interestMap = {};
+        var searchTerm = null;
+
+
+        $('body').on('click','.select-all',function (e) {
+
+            if($(this).prop('checked')){
+                $('input[type="checkbox"]').prop('checked',true);
+            }
+            else {
+                $('input[type="checkbox"]').prop('checked',false);
+            }
+
+
+        });
         $("#export-interest").click(function (e) {
             e.preventDefault();
-            var selectedCheckbox = $('input[type="checkbox"]:checked');
+            var selectedCheckbox = $('input[type="checkbox"]:checked:not([class="select-all"])');
             if(selectedCheckbox.length>0){
                 let exportingList = [];
                 for(let checkbox of selectedCheckbox){
@@ -67,7 +82,7 @@
 
         const thead = `<thead>
         <tr>
-            <th class="custom-checkbox"><input class="" type="checkbox" value="" ></th>
+            <th class="custom-checkbox"><input class="select-all" type="checkbox" value="" ></th>
             <th scope="col">INTERESTS</th>
             <th scope="col">AUDIENCE SIZE</th>
             <th scope="col">SEARCH</th>
@@ -79,6 +94,8 @@
 
         $("#search").click(function (e) {
             e.preventDefault();
+            $("#result-summary-header").hide();
+            searchTerm = $("#searchTerm").val();
             $.ajax({
 
                 url:'/searchInterest',
@@ -97,7 +114,7 @@
                         };
 
                         trs += `<tr class="table-secondary">
-            <th scope="row"><input class="" type="checkbox" value="" ></th>
+            <th scope="row"><input class="" type="checkbox" value="${dataRow.id}" ></th>
             <th scope="row">${dataRow.name}</th>
             <td>${dataRow.audience_size}</td>
             <td>
@@ -108,7 +125,13 @@
                     }
                     trs += `</tbody>`;
                     $("#search-result").html('');
+
+                    const headerContent = `Explore ${result.data.length} interests related to "${searchTerm}"`;
+                    $("#result-summary-header").html(headerContent);
+                    $("#result-summary-header").show();
                     $("#search-result").append(thead+trs);
+
+
                 },
                 error : function (xhr, ajaxOptions, thrownError) {
                     if(xhr.status!=200) {
@@ -192,7 +215,7 @@
                 });
             });
 
-            var fileTitle = 'orders'; // or 'my-unique-title'
+            var fileTitle = searchTerm.split(" ").join("+")+"_export"; // or 'my-unique-title'
 
             exportCSVFile(headers, itemsFormatted, fileTitle); // call the exportCSVFile() function to process the JSON and trigger the download
         }
